@@ -18,6 +18,18 @@ services:
       - 9229:9229
     networks:
       - nestjs-network
+    
+  db:
+    image: postgres:13-alpine
+    container_name: db
+    restart: always
+    env_file: .prod.env
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - nestjs-network
 
 networks:
   nestjs-network:
