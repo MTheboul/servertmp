@@ -10,9 +10,10 @@ const httpsOptions = {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    httpsOptions,
-  });
+  const app = await NestFactory.create(
+    AppModule,
+    process.env.NODE_ENV === 'production' ? {} : { httpsOptions },
+  );
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableCors({ origin: '*' });
