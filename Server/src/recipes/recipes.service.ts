@@ -3,15 +3,33 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { Prisma, Recipe as RecipeModel } from '@prisma/client';
 import { RecipeAlreadyExistException } from 'src/auth/exceptions/recipealreadyexist.exception';
 import { PrismaService } from 'src/prisma.service';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class RecipesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+  ) {}
 
   async create(createRecipeDto: CreateRecipeDto): Promise<RecipeModel> {
-    return this.prisma.recipe.create({
+    const recipe = await this.prisma.recipe.create({
       data: createRecipeDto,
     });
+
+    const author = await this.prisma.user.findUnique({
+      where: { id: recipe.userId },
+      include: { following: true },
+    });
+
+    author.following.forEach((user) => {
+      this.notificationService.sendNotificationToUser(user.id, {
+        title: 'Nouvelle recette',
+        body: 'Un utilisateur que vous suivez a publié une nouvelle recette',
+        icon: 'https://cdn-icons-png.flaticon.com/512/3119/3119338.png',
+      });
+    });
+    return recipe;
   }
 
   async createIfNotExist(
@@ -134,12 +152,20 @@ export class RecipesService {
       },
     });
 
-    return this.prisma.recipe.update({
+    const recipe = await this.prisma.recipe.update({
       where: { id: recipeId },
       data: {
         likes: likeCount,
       },
     });
+
+    this.notificationService.sendNotificationToUser(recipe.userId, {
+      title: 'Nouveaux like',
+      body: 'Un utilisateur a aimé votre recette',
+      icon: 'https://cdn-icons-png.flaticon.com/512/3119/3119338.png',
+    });
+
+    return recipe;
   }
 
   async dislikeRecipe(userId: number, recipeId: number): Promise<RecipeModel> {
