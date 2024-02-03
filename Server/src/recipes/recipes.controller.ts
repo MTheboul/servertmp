@@ -45,9 +45,7 @@ export class RecipesController {
   @HttpCode(HttpStatus.OK)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  @ApiBearerAuth()
   @ApiOkResponse({ type: [RecipeDto], description: 'Successfully Pull' })
-  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.recipesService.findAll();
@@ -56,9 +54,7 @@ export class RecipesController {
   @HttpCode(HttpStatus.OK)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  @ApiBearerAuth()
   @ApiOkResponse({ type: [RecipeDto], description: 'Successfully Pull' })
-  @UseGuards(AuthGuard)
   @Get('category/:category')
   findByCategory(@Param('category') category: string) {
     return this.recipesService.findByCategory(category);
@@ -67,7 +63,6 @@ export class RecipesController {
   @HttpCode(HttpStatus.OK)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  @ApiBearerAuth()
   @ApiOkResponse({ type: [RecipeDto], description: 'Successfully Pull' })
   @Get('users/:userId')
   findByUserId(@Param('userId') userId: number) {
@@ -93,8 +88,6 @@ export class RecipesController {
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   @ApiOkResponse({ type: RecipeDto, description: 'Successfully Pull' })
   @ApiNotFoundResponse({ description: 'Recipe not found' })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: number) {
     const recipe = this.recipesService.findOneById(id);
